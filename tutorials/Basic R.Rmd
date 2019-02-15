@@ -1,0 +1,321 @@
+---
+title: "Basic Coding With R"
+output: html_document
+---
+
+This guide and the exercises in it are designed to get you up to speed with programming in R. 
+This guide has links to useful resources to get additional guidance and practice, a quick overview of the fundamentals of R and programming, and a series of (increasingly tougher) exercises. 
+
+Note that this guide is not meant to be a stand-alone tutorial. I highly encourage you to seek out the resources linked to below, particularly the <a href="https://r4ds.had.co.nz/#">R for Data Science Book</a>, which is fairly comprehensive. If you get to a point and are confused, or want to know more, refer to these resources; learning a language on your own can really help internalize it. 
+
+This document is formatted so that you can easily copy R code into your own scripts. This is key, because it will allow you to experiment with some set code: change values, delete lines, add lines, etc. The examples are written to invite you to play around with them and learn how they work.
+
+_The most IMPORTANT point here is that you will only learn by doing it every day. Take time to work through the exercises here, as well as the tutorials linked below._
+
+
+
+# Basics of R
+
+The internet is full of free resources to help you learn R:
+
+* If you are completely new to coding you might like a quick overview of the types of objects common in most languages that can be found at <a href="">R for Cats</a>.
+* There's also a free introduction course at <a href="https://campus.datacamp.com/courses/free-introduction-to-r">Data Camp</a>.
+* If you have some idea about programming, a great guide to R is a <a href="https://r4ds.had.co.nz/#">free online book</a> that has tutorials on all things data science. I'd really recommend _all_ of you check this out, since it had good practice on the stuff we'll need to do for our projects.
+* If you prefer videos, you might check out <a href="https://www.pluralsight.com/search?q=R">this set of online courses</a>
+
+It is worth stressing a few main points for those of you who are new to programming:
+
+1. There are basic elements most programming languages use: numerical values (i.e., numbers), strings (i.e., words, or in R anything with quotes around it), and booleans (i.e., TRUE/FALSE). In addition there are two types of structures you should be aware of in R. The first is <code>NULL</code>, which is exactly what it sounds like: it is nothing. The other is <code>NA</code>, which indicates where data are missing in a database.
+2. Much of what we work with in R are structures that organize these elements. There are lists and vectors, matrices, and (most importantly) data frames. 
+3. We can store elements or other structures (like data frames or vectors) in named variables. If we enter something like <code>foo = 2</code> into the console, it takes the variable <code>foo</code> and sets its value to 2. That way if we type, say, <code>foo + 10</code> we would get back 12.
+4. While R can be used as a calculator (just enter 2 + 2 into the console), often we want to do more complex operations. For instance, we might want to select certain rows from a matrix, or we might want to average all the numerical data in a data frame. It is common to do this with something called a _function_. Functions are operators that have _names_ and they take _arguments_ or _parameters_. For instance, <code>sqrt()</code> is a function that takes the square root of a number. To use it, enter <code>sqrt(16)</code> into the console. Here <code>sqrt</code> is the function name, which takes a single argument, the number 16.
+5. Control structures. Often we want to not just do a single operation, but several. Further, we might want to only do that operation on specific elements. For example, we might want to get the average of every column in a data frame that is numerical. But data frames can contain columns of non-numerical elements (such as names or dates). So, we'd want to go through each column and check that it contains numerical data, and if it does, we can take the average; if it doesn't we can move on to the next column. Doing so is made easier with _control structures_ such as <code>for</code> and <code>while</code> loops and <code>if</code> conditionals. 
+6. Libraries. While there are functions that a lot of people will want to use (e.g., <code>sqrt</code>, <code>mean</code>, <code>sum</code>), there are infinitely many possible functions that could possibly be useful. Often, coders will develop a series of functions (and other stuff) that are useful for a given task. These are stored as _libraries_. We will use some cool libraries in our work, including <code>dplyr</code>, <code>ggplot2</code>, and <code>rvest</code>. 
+7. Errors. You will see errors when you run code. Everyone does. It's part of coding. If you don't understand your error (which will also happen), simply copy the error text and _Google it_. If there is one piece of advice about coding, it's that you Google is your friend. Don't know the error you just got? Google it. Want to know if there's a library that runs a particular algorithm? Google it. 
+
+Learning to code is very much about _doing_ and less about _reading_. 
+So, code away. Make mistakes. It's how you learn!
+
+
+# Exercises
+
+## Storing Variables
+
+In this exercise, you will create some variables that are different types. Remember, we have numerics, strings, and booleans, and these can be organized into lists, vectors, or matrices. 
+
+As an example, if I wanted to store the values 17, $\pi$, "Thursday", and TRUE in the variables a, b, c, and d, I'd use this code:
+```{r}
+a = 17
+b = pi
+c = "Thursday"
+d = TRUE
+```
+
+We can then organize these in a vector with:
+```{r}
+stuff = c(a, b, c, d)
+```
+
+Note that we don't have to write these values all over again, we can just refer to their variable names. 
+
+If we want to create a vector of sequential integers (e.g., 2, 3, 4, 5...), we can use a shortcut like this:
+```{r}
+2:20 # all the integers from 2 to 20
+```
+
+We can also create a list of repeated elements with the rep() function:
+```{r}
+rep(c(TRUE, FALSE), 10) # list that alernates between T/F 10 times
+# length of the list is 20 (10 Trues, and 10 Falses)
+```
+
+
+
+We can create lists with:
+```{r}
+stuff_list = list(a, b, c, d)
+```
+
+__Challenge__: Create the following variables:
+
+1. A list of the numbers from 101 to 150. Call it 'index'.
+2. A list of 30 TRUE and then 20 FALSE. Call it 'boo'
+3. A list that switches between "red" and "blue" (e.g., "red", "blue") that has length 50 (i.e., 25 reds and 25 blues). Call it 'colors'
+4. A named list that has 3 elements. Each element is a list. The first is 'index' from part 1, the second is 'boo' from part 2, and the third is 'colors' from part 3.
+
+
+
+## Control Structures
+
+The benefit of working with computing languages is that machines can do repetitive calculations really quickly. Doing so often requires using control structures. 
+
+The first control structure is <code>for</code>, which iterates over a list. As an example:
+```{r}
+for(i in c(1, 2, 3, 4)){
+  print(i)
+}
+```
+First, the syntax is this:
+```{r, eval=FALSE}
+for(i in LIST){
+  #STUFF#
+}
+```
+This says that for each element in LIST, we do STUFF. In the example above, our LIST was <code>c(1, 2, 3, 4)</code>, and the STUFF was that we would print each element.
+
+The second command structure is <code>if</code>, which is a way to run operations on only specific elements. An example:
+```{r}
+i = 10
+if(i == 10){ # Check condition i == 10
+  print("Hello") # If the condition is TRUE, then do this!
+}
+```
+<code>if</code> is often paired with <code>else</code>:
+```{r}
+i = 10
+if(i == 9){ # Check if i == 9
+  print("Hello") # If the condition is true, do this
+} else {
+  print("World") # If the condition is false, do this
+}
+```
+We can also combine multiple conditions with <code>else if</code>
+```{r}
+number = 52
+if(number == 96) { # Check conditional
+  print("Ackiem Hicks") # If it's true do this
+} else if(number == 39) { # If the first conditional is not true, check this one
+  print("Eddie Jackson")
+} else if(number == 52) {
+  print("Khalil Mack")
+} else {
+  print("Enter a different number")
+}
+```
+Note that we use three conditionals here: the first <code>if</code>, and then two <code>else if</code> statements. We also have a final <code>else</code>. What do you think happens if we change the number from 52 to 53? (Hint: run the code in your own RStudio)
+What do you think happens when the final <code>else</code> is not there?
+
+The third command structure is <code>while</code>, which operates like a <code>for</code> loop, but it keeps repeating until a condition is no longer satisfied. 
+Here's an example:
+```{r}
+i = 1 # Set initial value for iterator
+while(i < 5){ # Set condition
+  print(i) # Desired operation
+  i = i + 1 # Update iterator
+}
+```
+Before using a <code>while</code> loop, we have to set an initial value for our iterator (in this case, $i$). Then, in the <code>while</code> loop, we set a condition. Here, we say, "Keep doing stuff so long as i < 5." Within the loop, we do stuff (here we print i, but we could do other stuff). Lastly, we update the iterator. 
+This last point is important. If we never update $i$, then the value of $i$ will never change, and the condition <code>i < 5</code> will _always be true_. This means you will keep looping...forever. This is called an infinite loop, and should be avoided.
+
+__Challenge__:
+
+1. Write a <code>for</code> loop that prints the numbers from 1 to 50. (Hint: you can make list from 1 to 50 with <code>1:50</code>)
+2. Write a <code>for</code> loop that iterates through numbers from 1 to 50. If the number is divisible by 7, print "BEE", and if the number is not divisible by 7, print "BUZZ". (Hint: You may need to use some <code>if</code> statements in your <code>for</code> loop. Also, <code>X %% Y</code> gives you the remainder of dividing X by Y. So, <code>8 %% 7</code> is 1, but <code>14 %% 7</code> is 0.)
+3. Write a <code>for</code> loop that for each number from 1 to 100 prints "PRIME" if the number is a prime number, and "COMPOSITE" if it is not a prime number.
+
+
+## Functions and Libraries
+
+Functions are one of the most important things you'll use when coding. They allow you to do a lot of complex operations with only a single line of code. Each function has a _name_, and is followed immediately by parentheses. Within the parentheses is an argument. They always return some value. For example, <code>mean()</code> takes the average of the argument you give it, which is a list of numbers:
+```{r}
+foo = 1:100 # list of numbers from 1 to 100
+mean(foo) # average of the numbers from 1 to 100
+mean(foo^2) # average of the square of the numbers from 1 to 100
+```
+Functions can take multiple arguments:
+```{r}
+quantile(foo, probs = c(0.25, 0.5, 0.75)) # 25th, 50th, and 75th percentiles of foo
+```
+Here, the first argument is <code>foo</code>, and the second (which the function calls <code>probs</code>) is the list <code>c(0.25, 0.5, 0.75)</code>. It returns 3 values, the 25th, 50th, and 75th percentiles.
+
+A good resource for learning about how a function works is the R manual. To get a specific entry, you can search the Help tab in RStudio (bottom right). Also, if you Google a function, you can usually find a site that shows how to use it. Sometimes, you can even Google what you want to do in R and find a function that does what you want.
+
+While a lot of functions are built straight into R, there are plenty of useful functions that other folks have written that we will want to use. These are stored in _libraries_. When you write an R script, you have to _call_ the library that has the functions you want. The only catch is that you have to install the libraries before you use them the first time (note, you only have to install them once, but you have to call them in each script you want to use them in). It turns out that R has built-in functions to both install and call functions. Try running some of the code below:
+```{r}
+options(repos = c(CRAN = "http://cran.rstudio.com")) # set mirror
+install.packages('dplyr') # install a useful library called dplyr
+install.packages('ggplot2') # install a useful library for plots
+install.packages('ballr') # install a useful package for basketball data
+
+# Call or load the libraries you just installed
+library(dplyr)
+library(ggplot2)
+library(ballr)
+```
+
+Finally, it is possible to write your _own_ functions. An example below chooses a random number from 1 to 10, and allows you to guess it. If you guess it correctly, you win, and if you do not, you lose:
+```{r}
+guess_my_number <- function(guess){
+  
+  number = sample.int(10, 1) # the *random* number you try to guess
+  
+  if(guess == number){ # if you guess correctly, you win
+    print("You win!")
+  } else {
+    print("You lose...") # if you guess incorrectly, you lose
+  }
+  
+  return(NULL) # Return nothing
+}
+
+guess_my_number(4)
+```
+
+__Challenge__:
+
+1. Create a list <code>foo</code> of the numbers 1 to 100, <code>bar1</code> that is the square of the numbers 1 to 100, and <code>bar2</code> that is the square root of the numbers 1 to 100. Use the <code>plot()</code> function to plot:
+
+     - <code>foo</code> versus <code>bar2</code>
+     - <code>foo</code> versus <code>bar2</code>
+     - <code>bar1</code> versus <code>bar2</code>
+
+2. Take the average of <code>foo</code>, <code>bar1</code>, and <code>bar2</code> (Hint: use the <code>mean()</code> function).
+
+3. Let's expand the <code>guess_my_number()</code> function to allow the use to make multiple guesses. You can copy the basic structure of the code, but you'll have to change the conditionals to include a <code>while</code> loop. (Hint: initialize a variable before the <code>if</code> called <code>num_guesses</code> and use that in your while loop.)
+
+
+## Data Frames, Data Wrangling, and ggplot
+
+For most of our work, we'll be dealing with data frames. These are basically matrices, but the columns have names. To illustrate this, we'll use data stored in the <code>ballr</code> library:
+```{r}
+library(ballr) # Load the library
+players <- NBAPerGameStatistics(season = 2018) # run a function from the ballr library to obtain a data.frame called 'players'
+
+head(players) # inspect the first few rows of the data
+tail(players) # inspect the last few rows of the data
+dim(players) # dimensions (row x column)
+str(players) # summarize the structure of the data frame
+names(players) # list of column names
+```
+Each row corresponds to a single NBA player and their per-game stats during the 2018 season. 
+
+We can access specific rows and columns in the data frame using:
+```{r}
+players[c(1:3, 20), # get rows 1, 2, 3, and 20
+        c(2, 5, 11)] # get columns 2, 5, 11
+```
+
+Doing this, though, means you need to know the precise indices (numbers) of each row and column you want, which we often do not.
+Instead, we can select columns by name using the dollar sign:
+```{r}
+players$player
+```
+
+A useful package for selection rows and columns (and doing a lot more) is <code>dplyr</code>, which you installed in the last section. I recommend checking out this <a href="https://r4ds.had.co.nz/transform.html">introduction to dplyr</a>, or <a href="https://cran.r-project.org/web/packages/dplyr/vignettes/dplyr.html">this one</a>, or <a href="http://stat545.com/block009_dplyr-intro.html">this one</a>. 
+Here, we'll practice a few simple commands.
+
+One of the nice things about <code>dplyr</code> is that it simplifies syntax so it is easier to read.
+In order to do that, it uses something called a "pipe", which is denote "%>%". 
+The pipe works by taking the function to the right and applying it to the object on the right.
+It's easier to see in practice below.
+
+The first is <code>filter()</code>. This let's us choose specific rows according to some criterion. For instance, if we want to choose data for only Bulls players, we'd use:
+```{r}
+players %>% # take the players data
+  filter(tm == "CHI") # and filter out anybody whose tm is not "CHI"
+```
+Here, the syntax says, take the data frame called "players", and filter out only the relevant rows (team is the Bulls or <code>tm == "CHI"</code>). Note that <code>tm</code> is the column in <code>players</code> that has a players team.
+
+The second is <code>select()</code>, which allows us to choose specific columns by name:
+```{r}
+players %>%
+  filter(tm == "CHI") %>%
+  select(player, ps_g, stl, blk, trb, fgpercent)
+```
+Note that in the command above, we piped multiple commands. We said, "Take the players data _and then_ (%>%) filter out only the Bulls, _and then_ (%>%) select the columns player, ps_g (points per game), stl, blk, trb (total rebounds), and fgpercent (field goal %)."
+
+Finally, we can visualize data with <code>ggplot</code>. I recommend reading more about it here and here, as well as <a href="https://r4ds.had.co.nz/exploratory-data-analysis.html#ggplot2-calls">DSR</a>.
+Here's a few examples of plots:
+```{r}
+ggplot(players) + 
+  geom_point(aes(ps_g, fgpercent)) + 
+  labs(x = "Points Per Game", 
+       y = "Field Goal %")
+
+ggplot(players) + 
+  geom_point(aes(ps_g, fgpercent, color = tm)) + 
+  labs(x = "Points Per Game", 
+       y = "Field Goal %")
+
+ggplot(players) + 
+  geom_smooth(aes(ps_g, fgpercent)) + 
+  labs(x = "Points Per Game", 
+       y = "Field Goal %")
+
+ggplot(players) + 
+  geom_point(aes(x3pa, ps_g), alpha = 0.3) + 
+  geom_smooth(aes(x3pa, ps_g)) + 
+  labs(x = "3pt Attempts", 
+       y = "Points Per Game")
+
+players %>%
+  filter(tm %in% c("CHI", "GSW", "MIL", "CLE")) %>%
+  ggplot() + 
+  geom_point(aes(x3pa, ps_g, color = tm)) + 
+  labs(x = "3pt Attempts", 
+       y = "Points Per Game")
+
+players %>%
+  filter(tm %in% c("CHI", "GSW", "MIL", "CLE")) %>%
+  filter(x2ppercent > 0.0, 
+         x3ppercent > 0.0) %>%
+  ggplot() + 
+  geom_point(aes(x3ppercent, x2ppercent, color = tm)) + 
+  labs(x = "3pt %", 
+       y = "2pt %")
+```
+
+
+__Challenge__:
+
+1. How would you go about getting the following rows and columns from the <code>players</code> data frame:
+
+     - Rows 1, 2, 20, and 50 with columns 2, 10, and 11
+     - Rows for the Warriors players (<code>tm == "GSW"</code>) and columns on name (<code>player</code>), 3pt attempts (<code>x3pa</code>), and 3pt % (<code>x3ppercent</code>).
+     - The names of players who take more than 7 3-pointers per game. (Hint: You'll need to <code>filter()</code> on 3pt attempts <code>x3pa</code>, and <code>select</code> on names <code>player</code>).
+     
+2. Create the following scatterplots; for a challenge add a smoothed curve (<code>geom_smooth</code>) into these plots:
+
+     - 3pt% (<code>x3ppercent</code>) versus 2pt% (<code>x2ppercent</code>).
+     - steals (<code>stl</code>) versus total rebounds (<code>trb</code>). For an added challenge, color the points by the number of defenseive rebounds (<code>drb</code>).
+     - minutes per game (<code>mp</code>) versus effective field goal percent (<code>efgpercent</code>).

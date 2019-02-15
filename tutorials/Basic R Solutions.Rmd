@@ -1,0 +1,183 @@
+---
+title: "Basic Coding With R: Solutions"
+output: html_document
+---
+
+This document provides solutions to the challenge exercises from "Basic Coding With R." 
+You might want to make note of two things. 
+First, there may be more than one "right" solution. I provided some straightforward answers, but you may have done something different that still gets the same result. So, as you look through this, don't worry that your code looks different as long as you got it to do what it is supposed to do.
+Second, there are commands and functions in this code that you may not know. This happens with coding; you always run into structures or functions that you're not familiar with. When this happens, remember you can always Google it!
+
+## Storing Variables
+
+__Challenge__: Create the following variables:
+
+1. A list of the numbers from 101 to 150. Call it 'index'.
+```{r}
+index <- 101:150
+```
+
+2. A list of 30 TRUE and then 20 FALSE. Call it 'boo'
+```{r}
+boo <- rep(c(TRUE, FALSE), c(30, 20))
+```
+
+3. A list that switches between "red" and "blue" (e.g., "red", "blue") that has length 50 (i.e., 25 reds and 25 blues). Call it 'colors'
+```{r}
+colors <- rep(c("red", "blue"), 25)
+```
+
+
+4. A named list that has 3 elements. Each element is a list. The first is 'index' from part 1, the second is 'boo' from part 2, and the third is 'colors' from part 3.
+```{r}
+named_list <- list(index = index,
+                   boo = boo,
+                   colors = colors)
+```
+
+
+
+## Control Structures
+
+__Challenge__:
+
+1. Write a <code>for</code> loop that prints the numbers from 1 to 50. (Hint: you can make list from 1 to 50 with <code>1:50</code>)
+```{r}
+for(i in 1:50){
+  
+  print(i)
+  
+}
+```
+
+
+2. Write a <code>for</code> loop that iterates through numbers from 1 to 50. If the number is divisible by 7, print "BEE", and if the number is not divisible by 7, print "BUZZ". (Hint: You may need to use some <code>if</code> statements in your <code>for</code> loop. Also, <code>X %% Y</code> gives you the remainder of dividing X by Y. So, <code>8 %% 7</code> is 1, but <code>14 %% 7</code> is 0.)
+```{r}
+for(i in 1:50){
+  
+  if(i %% 7 == 0){
+    print("BEE")
+  } else {
+    print("BUZZ")
+  }
+  
+}
+```
+
+
+3. Write a <code>for</code> loop that for each number from 1 to 100 prints "PRIME" if the number is a prime number, and "COMPOSITE" if it is not a prime number.
+```{r}
+for(i in 1:100){
+  
+  num = NA
+  
+  if(i <= 3){
+    
+    num = NA
+    
+  } else {
+    
+    for(j in 2:floor(i/2)){
+      
+      if(i %% j == 0){
+        
+        num = "COMPOSITE"
+        break()
+        
+      } 
+    }
+  }
+  
+  if(is.na(num)){
+    print("PRIME")
+  } else {
+    print(num)
+  }
+  
+}
+```
+
+## Functions and Libraries
+
+1. Create a list <code>foo</code> of the numbers 1 to 100, <code>bar1</code> that is the square of the numbers 1 to 100, and <code>bar2</code> that is the square root of the numbers 1 to 100. Use the <code>plot()</code> function to plot:
+```{r}
+foo <- 1:100
+bar1 <- foo^2
+bar2 <- sqrt(foo)
+```
+
+
+     - <code>foo</code> versus <code>bar1</code>
+     - <code>foo</code> versus <code>bar2</code>
+     - <code>bar1</code> versus <code>bar2</code>
+```{r}
+plot(foo, bar1) # foo vs bar1
+plot(foo, bar2) # foo vs bar1
+plot(bar1, bar2) # foo vs bar1
+```
+
+
+
+2. Take the average of <code>foo</code>, <code>bar1</code>, and <code>bar2</code> (Hint: use the <code>mean()</code> function).
+```{r}
+mean(foo)
+mean(bar1)
+mean(bar2)
+```
+
+
+3. Let's expand the <code>guess_my_number()</code> function to allow the user to make multiple guesses. You can copy the basic structure of the code, but you'll have to change the conditionals to include a <code>while</code> loop. (Hint: initialize a variable before the <code>if</code> called <code>num_guesses</code> and use that in your while loop.)
+```{r}
+guess_my_number <- function(max_guesses=3){
+  
+  number = sample.int(10, 1) # the *random* number you try to guess
+  
+  num_guesses = 0 # start counting the guesses
+  
+  win = FALSE # set win to FALSE, and only change it to TRUE if you win.
+  
+  guess <- readline("Guess a number: ") # ask for a guess
+  guess <- as.numeric(guess)
+  
+  while(num_guesses < max_guesses){# if you still have guesses left, keep playing
+    
+    if(guess == number){ # if you guess correctly, you win
+
+      win = TRUE
+      break() # exit out of the while() loop
+      
+    } else {
+      
+      num_guesses <- num_guesses + 1 # increment the counter
+    
+      if(num_guesses < max_guesses){
+        
+        guess <- readline("That's not right. Guess again: ") # guess again
+        guess = as.numeric(guess)
+        
+      } else {
+      
+        break()
+      
+      }
+      
+    }
+    
+  }
+  
+  if(win){
+    
+    print("You win!")
+    
+  } else {
+    
+    print("You lose...")
+    
+  }
+  
+  return(NULL) # Return nothing
+
+}
+
+# guess_my_number(5)
+```
