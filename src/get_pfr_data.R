@@ -36,10 +36,49 @@ pfr_data = lapply(categories, # Loop through categories
          return(catdf)
        })
 
+# Make sure you name all the data frames
 names(pfr_data) = categories
 
+# Save the whole list of data frames to file
 saveRDS(pfr_data, paste0("./data/pfr_all", min(years), "_", max(years), ".RDS"))
 
+# Then save data sets for each individual category
 for(dd in names(pfr_data)){
   saveRDS(pfr_data[[dd]], paste0("./data/pfr_", dd, "_", min(years), "_", max(years), ".RDS"))
+}
+
+
+##---------------------------------------##
+## Scrape awards data
+##---------------------------------------##
+awards = list(apmvp = "ap-nfl-mvp-award",
+              pfwamvp = "pfwa-nfl-mvp-award",
+              bell = "bert-bell-award",
+              opoy = "ap-offensive-player-of-the-year",
+              dpoy = "ap-defensive-player-of-the-year",
+              sbmvp = "super-bowl-mvp-award",
+              oroy = "ap-offensive-rookie-of-the-year-award",
+              droy = "ap-defensive-rookie-of-the-year-award",
+              wpmoy = "walter-payton-man-of-the-year",
+              apcpoy = "ap-comeback-player-award",
+              pfwacpoy = "pfwa-comeback-player-award")
+
+# For each award, get the pfr data on the winner
+pfr_awards = lapply(awards, scrape_pfr_awards)
+
+# Name the awards
+names(pfr_awards) = names(awards)
+
+pfr_awards$dpoy %>% head()
+
+# write all awards to file
+saveRDS(pfr_awards, "./data/pfr_awards_1972-2018.RDS")
+
+# write individual files for each award
+for(i in seq(pfr_awards)){
+  saveRDS(pfr_awards[[i]], 
+          paste0("./data/pfr_awards_", 
+                 names(pfr_awards)[i], 
+                 "_1972-2018.RDS")
+  )
 }

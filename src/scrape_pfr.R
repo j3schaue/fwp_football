@@ -30,7 +30,7 @@ library(naniar)
 ##' @note: some PFR tables have different formatting issues
 ##'         and this function clears those up
 ##---------------------------------------------------------##
-post_process <- function(dat, category){
+post_process_season <- function(dat, category){
   
   # Each conditional fixes headers 
   if(category == "passing"){
@@ -105,7 +105,8 @@ post_process <- function(dat, category){
 ##' @name: scrape_pfr
 ##' @param: year, integer; the year in which you want stats
 ##' @param: category, string; the category of stats you want
-##' @return: data frame for a given year of passing data
+##' @return: data frame for a given year of data in the 
+##'            specified category
 ##---------------------------------------------------------##
 scrape_pfr <- function(year, category){
   
@@ -121,7 +122,7 @@ scrape_pfr <- function(year, category){
     outdf <- read_html(url) %>%
       html_node("table") %>%
       html_table() %>%
-      post_process(., category) %>%
+      post_process_season(., category) %>%
       clean_names() 
     
     outdf$year = year
@@ -138,3 +139,54 @@ scrape_pfr <- function(year, category){
 }
 
 
+##---------------------------------------------------------##
+##' @name: scrape_pfr_awards
+##' @param: award, string; the name of the award
+##' @return: data frame for award
+##---------------------------------------------------------##
+scrape_pfr_awards <- function(award){
+  
+  ###---- Sanitize input
+  # award names for url
+  awards = list(dpoy = "ap-defensive-player-of-the-year",
+                apmvp = "ap-nfl-mvp-award",
+                pfwamvp = "pfwa-nfl-mvp-award",
+                bell = "bert-bell-award",
+                opoy = "ap-offensive-player-of-the-year",
+                dpoy = "ap-defensive-player-of-the-year",
+                sbmvp = "super-bowl-mvp-award",
+                oroy = "ap-offensive-rookie-of-the-year-award",
+                droy = "ap-defensive-rookie-of-the-year-award",
+                wpmoy = "walter-payton-man-of-the-year",
+                apcpoy = "ap-comeback-player-award",
+                pfwacpoy = "pfwa-comeback-player-award")
+  
+  # Check that the function was given a real award
+  if(award %in% unlist(awards)){
+    
+    url = paste0("https://www.pro-football-reference.com/awards/",
+                 award, 
+                 ".htm") 
+    
+  } else if(award %in% names(awards)){
+    
+    url = paste0("https://www.pro-football-reference.com/awards/",
+                 awards[[award]],
+                 ".htm")
+    
+  } else {
+    
+    print("You must specify an award:")
+    print(cat(paste(names(awards), sep = "\n")))
+    return(NULL) # if no valid argument, end the function
+    
+  }
+  
+  # get the relevant table
+  outdf = read_html(url) %>%
+    html_node("table") %>%
+    html_table()
+  
+  # return the table
+  return(outdf)
+}
