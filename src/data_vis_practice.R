@@ -87,6 +87,7 @@ qbs = filter(stof, pos == "QB") %>%
   mutate(yr_rel = year - start_yr)
 
 med_dollars = quantile(stof$dollars, 0.5)
+q3_dollars = quantile(stof$dollars, 0.75)
 
 head(qbs)
 
@@ -95,6 +96,14 @@ ggplot(filter(qbs, abs(yr_rel) < 3)) +
                 color = factor(dollars > med_dollars)))
 
 ggplot(filter(qbs, abs(yr_rel) < 3)) + 
+  geom_smooth(aes(yr_rel, qbr, 
+                  color = factor(dollars > q3_dollars)))
+
+ggplot(filter(qbs, abs(yr_rel) < 3)) + 
   geom_smooth(aes(yr_rel, gs, 
                   color = factor(dollars > med_dollars)))
+
+ggplot(filter(qbs, abs(yr_rel) < 3)) + 
+  geom_smooth(aes(yr_rel, gs, 
+                  color = factor(dollars > q3_dollars)))
   
