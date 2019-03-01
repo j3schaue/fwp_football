@@ -35,7 +35,10 @@ post_process_season <- function(dat, category){
   # Each conditional fixes headers 
   if(category == "passing"){
     col_names = names(dat)
-    col_names[25] = "SkYds"
+    ind = which(col_names == "Sk")
+    if(col_names[ind + 1] == "Yds"){ 
+       col_names[ind + 1] ="SkYds"
+    }
     names(dat) = col_names
   } else if(category == "rushing"){
     col_names = dat[1,]
