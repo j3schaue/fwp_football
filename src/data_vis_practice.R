@@ -66,7 +66,6 @@ ggplot(passing) +
 stof = readRDS("./data/sportrac/offense.RDS")
 head(stof)
 
-
 ggplot(stof) + 
   geom_point(aes(age, yrs))
 
