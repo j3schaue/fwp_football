@@ -1,0 +1,122 @@
+---
+title: "OPOY Predictions"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Libraries
+
+These are some of the libraries we will need to do our analysis:
+```{r}
+library(corrplot)
+library(skimr)
+library(tidyverse) 
+```
+
+
+# Load Data
+
+We have PFR data on passing, rushing, and receiving stats by season:
+```{r}
+pass <- readRDS("../data/PFR/pfr_passing_1985_2018.RDS")
+rush <- readRDS("../data/PFR/pfr_rushing_1985_2018.RDS")
+rec <- readRDS("../data/PFR/pfr_receiving_1985_2018.RDS")
+```
+
+
+We also have a table of OPOY winners:
+```{r}
+opoy_winners <- readRDS("../data/PFR/pfr_awards_opoy_1972-2018.RDS") %>% filter(Year >= 1985)
+```
+
+
+# Rushing
+
+First, we'll need to clean up the `player` column in the `rush` data:
+```{r}
+rush$player <- gsub("\\+|\\*", "", rush$player) # clean names
+
+# tidy up names for the winners data
+opoy_winners <- opoy_winners %>%
+  select(year = Year, 
+         player = Player, 
+         team = Tm)
+```
+
+
+
+Now that our names and years are standardized, we can write a quick function to return whether a player won OPOY in a given year or not:
+```{r}
+rush <- rush %>% 
+  mutate(opoy = map2(player, year, 
+                     .f = function(x, y){
+                       win = nrow(filter(opoy_winners, 
+                                   player == x, 
+                                   year == y)) == 1
+                       return(as.integer(win))
+                     }), 
+         opoy = unlist(opoy))
+```
+
+Finally, we can see from the position field `pos` that this data contains everyone who ever attempted to run in a game. 
+Further, some of the positions are a little wonky. 
+So, we should filter out folks who only had a few carries (i.e., fewer than 15, 20, or even 50). 
+
+```{r}
+rush <- rush %>%
+  filter(att > 20) %>% # Note: where do we want to set this?
+  mutate(pos = toupper(pos)) # get rid of weird capitalizaiton rules
+
+# There are some odd position alignments that we may need to deal with later
+rush %>% distinct(pos)
+```
+
+
+## Inspect Data
+
+```{r}
+rush %>% skim()
+```
+
+
+We can get a plot of some important pairwise correlations in our data with the following code:
+```{r}
+rush %>%
+  select(year, gs, yds, td, lng, y_a, y_g, fmb, opoy) %>%
+  cor(.) %>%
+  corrplot()
+```
+
+Not surprisingly, things like the yards and TDs are associated with winning OPOY.
+
+
+We can also examine whether distributions of variables differ according to whether a player won OPOY or not.
+```{r}
+ggplot(rush) + 
+  geom_density(aes(td, fill = factor(opoy)), alpha = 0.5) + # make sure the variable names are inside the aes() function
+  labs(title = "Touchdowns (by Season)", 
+       x = "TD", 
+       y = "Density")
+```
+
+
+We can also examine whether relationships between variables differ according to whether a player won OPOY or not.
+```{r}
+ggplot(rush) + # start canvas with rb data
+  geom_point(aes(y_g, td, color = factor(opoy)), alpha = 0.6) + # add the points
+  geom_smooth(aes(y_g, td, color = factor(opoy)), method = "loess") +  # add the smoothed loess curve
+  labs(title = "Yards Per Game vs. TDs", 
+       x = "YPG", 
+       y = "TD")
+```
+
+Note that the pattern seems constant for OPOY winners and losers, but that OPOY winners tended to have more TDs and more yards per game.
+
+NOTE: What other plots should we make?
+
+# Passing
+
+# Receiving

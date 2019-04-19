@@ -1,0 +1,84 @@
+---
+title: "Fantasy Football Scores"
+author: "FWP Sabermetrics Club"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This project looks at how accurate fantasy football projections can be, and what might be driving that. 
+We have data from the 2018 season on weekly projections and actual points earned for different positions and players. 
+
+
+# Libraries
+
+These are some of the libraries we will need to do our analysis:
+```{r}
+library(corrplot)
+library(skimr)
+library(tidyverse) 
+```
+
+
+# Load Data
+
+There are data files for each key position in fantasy football: QB, RB, WR, K, and D/ST. 
+Here, we'll read in each file:
+```{r}
+qbs <- readRDS("../data/fantasy_projections_2018_nfl_QB.Rds")
+rbs <- readRDS("../data/fantasy_projections_2018_nfl_RB.Rds")
+wrs <- readRDS("../data/fantasy_projections_2018_nfl_WR.Rds")
+kick <- readRDS("../data/fantasy_projections_2018_nfl_K.Rds")
+dst <- readRDS("../data/fantasy_projections_2018_nfl_DST.Rds")
+```
+
+
+
+# Running Backs
+
+Note that for some of the stats (`rec_td` or `rush_td`) in the running backs data, when the value should be zero, it is instead reported as missing (in `R`, this is denoted `NA`). 
+This means we need to replace some of those "missing" values in the data with 0:
+```{r}
+rbs <- rbs %>%
+  mutate_if(.predicate = function(field) is.numeric(field) & anyNA(field), 
+            .funs = function(x) ifelse(is.na(x), 0, x))
+```
+
+## Inspect Data
+
+Below are some univariate summaries of the data:
+
+```{r}
+rbs %>% skim()
+```
+
+Below are some bivariate summaries for the data:
+```{r}
+rbs %>%
+  select(weekpts, site_pts, rush_yds, rush_tds, rec_yds, rec_tds, fumbles_lost, two_pts) %>%
+  cor(.) %>%
+  corrplot()
+```
+
+Finally, below are some plots between variables that might be of interest for our project.
+
+This is plot of projected vs. actual points for running backs:
+```{r}
+ggplot(rbs) + # start canvas with rb data
+  geom_point(aes(site_pts, weekpts)) + # add the points
+  stat_function(fun = function(x) x, color = 'red') + # plot line y = x in red
+  geom_smooth(aes(site_pts, weekpts), method = "loess") + # add the smoothed loess curve
+  labs(title = "Projected vs. Actual Points (Running backs)", 
+       x = "Projected Points", 
+       y = "Actual Points")
+```
+
+# Quarterbacks
+
+
+# Wide Receivers
+
+
+# Defense/Special Teams

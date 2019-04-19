@@ -1,0 +1,135 @@
+---
+title: "Salary Tutorial"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Libraries
+
+Not all of the functions are available in base `R`. So, we'll have to load some extra functions in order to work with our data.
+```{r}
+library(corrplot)
+library(skimr)
+library(tidyverse) 
+```
+If you cannot load these libraries with this code, then this means you haven't installed those libraries. 
+In `R`, you need to install libraries before you use them. 
+To install a library, you use
+```{r, eval=FALSE}
+install.packages(c("tidverse", "skimr", "corrplot"), dep = TRUE)
+```
+
+
+
+# Load Data
+
+There are important data on player salaries by whether they play on defense, offense, or special teams. 
+Here, we load in all three datasets:
+```{r}
+df <- readRDS("../data/sportrac/defense.RDS")
+of <- readRDS("../data/sportrac/offense.RDS")
+st <- readRDS("../data/sportrac/special.RDS")
+```
+
+Note that depending on where your `R` script is located, you'll have to change part of the code above so that it corresponds with how you've organized your files (i.e., you give the functions the correct paths).
+
+Now we have three data frames, each with their own sets of variables.
+
+The data were scraped from Sportrac, and contain players currently under contract, and some of the details of those players and contracts.
+
+
+# Inspect Data
+
+There are a few ways to look at your data. 
+First, it's a good idea to look at the first few rows of the data and make sure you know what's in it. 
+We can do that with the `head()` function, which returns the first five rows of a data frame.
+Here, we'll focus on the offensive player data:
+```{r}
+head(of)
+```
+
+Take some time to look through these rows and make sure you understand all of the variables in it.
+
+
+## Summarizing the Data
+
+The `skimr` library, which we loaded above, has a nice function `skim()` gives a nice ordered summary of your data, including univariate summary statistics and histograms:
+```{r}
+of %>% skim()
+```
+
+Note that in our syntax above, we used the pipe `%>%` command. 
+This has the effect of saying take the object before the pipe (in this case, the `of` data frame) and feed it into the function after the pipe (`skim()`). 
+You could get the same effect as the code above by running `skim(of)`.
+
+
+While univariate summaries are important, we're also interested in the relationship between variables. 
+One way to examine that relationship is with the correlation between them. 
+Correlation ranges between -1 and 1. 
+Correlations close to -1 means that two variables are closely related, but that the larger one gets, the smaller the other gets.
+Correlations close to 0 means that the two variables are potentially unrelated.
+Correlations close to 1 means that to variables are closely related, and larger values of one variable are associated with larger values of the other.
+
+We can get a plot of some important pairwise correlations in our data with the following code:
+```{r}
+of %>%
+  select(yrs, age, dollars, average, guaranteed_at_signing, practical_guarantees, percent_gteed) %>%
+  cor(.) %>%
+  corrplot()
+```
+
+In this plot, we see that a player's age is very weakly related to the length of their contract, but is more strongly related to the average salary.
+What else do you see in this plot?
+
+
+## Other Visualization
+
+Finally, not all relationships are captured by the correlation between variables. 
+Particularly if relationships are not linear, sometimes the correlation between variables can be zero, even if they are closely related.
+
+Thus, we might want to get other visualizations. 
+To do that, we can use the `ggplot` library. 
+This library treats your plot like a canvas.
+You start by saying what data you want to visualize, and then continually add layers to the plot. 
+For example, in the code below, we say we want to visualize the offense data (first line), and that we want to add points corresponding to the average salary and percent guaranteed of the contract.
+```{r}
+ggplot(of) + 
+  geom_point(aes(average, percent_gteed)) # make sure the variable names are inside the aes() function
+```
+
+
+We might also be interested in differences in how much of the contract is guaranteed by position. 
+Here we break this up into skill positions and linemen/fullbacks:
+```{r}
+of <- of %>%
+  mutate(skill = ifelse(pos %in% c("QB", "RB", "TE", "WR"), 1, 0)) 
+
+ggplot(of) + 
+  geom_density(aes(percent_gteed, fill = factor(skill)), alpha = 0.5)
+```
+
+Alternatively, we can look at stats within skill positions:
+```{r}
+of %>%
+  filter(skill == 1) %>%
+  ggplot() +
+    geom_density(aes(percent_gteed, fill = pos), alpha = 0.3)
+```
+
+It looks like QBs tend to get more of their contracts guaranteed.
+
+
+# Your Turn
+
+Use the code above to do the following:
+
+1. Create more visualizations for the offense dataset. 
+2. Repeat for the defense and special teams datasets.
+
+Try to embed everything in Rmarkdown (i.e., the template document).
+We'll look at how to add code chunks during the meeting. 
+
+If you get lost, a handy reference is the free e-book <a href="https://r4ds.had.co.nz/">R for Data Science</a>

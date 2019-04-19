@@ -1,0 +1,77 @@
+---
+title: "Salaries Project"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Libraries
+
+These are some of the libraries we will need to do our analysis:
+```{r}
+library(corrplot)
+library(skimr)
+library(tidyverse) 
+```
+
+
+# Load Data
+
+There are datasets on player salaries by whether they play on defense, offense, or special teams:
+```{r}
+df <- readRDS("../data/sportrac/defense.RDS")
+of <- readRDS("../data/sportrac/offense.RDS")
+st <- readRDS("../data/sportrac/special.RDS")
+```
+
+
+# Offense
+
+We might want to add a column that indicates if a player plays a "skill" position:
+```{r}
+of <- of %>%
+  mutate(skill = ifelse(pos %in% c("QB", "RB", "TE", "WR"), 1, 0)) 
+```
+
+## Inspect Data
+
+Below are some univariate summaries of the data:
+
+```{r}
+of %>% skim()
+```
+
+
+## Plot data
+
+Below are some bivariate summaries for the data:
+```{r}
+of %>%
+  select(yrs, age, dollars, average, guaranteed_at_signing, practical_guarantees, percent_gteed) %>%
+  cor(.) %>%
+  corrplot()
+```
+
+Finally, below are some plots between variables that might be of interest for our project.
+
+For instance, We might also be interested in differences in how much of the contract is guaranteed by position:
+```{r}
+ggplot(of) + 
+  geom_density(aes(percent_gteed, fill = factor(skill)), alpha = 0.5)
+```
+
+
+Or, we can look at stats within skill positions:
+```{r}
+of %>%
+  filter(skill == 1) %>%
+  ggplot() +
+    geom_density(aes(percent_gteed, fill = pos), alpha = 0.3)
+```
+
+
+# Defense
+
+# Special Teams

@@ -1,0 +1,144 @@
+---
+title: "Fantasy Scores"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Libraries
+
+Not all of the functions are available in base `R`. So, we'll have to load some extra functions in order to work with our data.
+```{r}
+library(corrplot)
+library(skimr)
+library(tidyverse) 
+```
+If you cannot load these libraries with this code, then this means you haven't installed those libraries. 
+In `R`, you need to install libraries before you use them. 
+To install a library, you use
+```{r, eval=FALSE}
+install.packages(c("tidverse", "skimr", "corrplot"), dep = TRUE)
+```
+
+
+
+# Load Data
+
+There are data files for each key position in fantasy football: QB, RB, WR, K, and D/ST. 
+Here, we'll read in each file:
+```{r}
+qbs <- readRDS("../data/fantasy_projections_2018_nfl_QB.Rds")
+rbs <- readRDS("../data/fantasy_projections_2018_nfl_RB.Rds")
+wrs <- readRDS("../data/fantasy_projections_2018_nfl_WR.Rds")
+kick <- readRDS("../data/fantasy_projections_2018_nfl_K.Rds")
+dst <- readRDS("../data/fantasy_projections_2018_nfl_DST.Rds")
+```
+
+Note that depending on where your `R` script is located, you'll have to change part of the code above so that it corresponds with how you've organized your files (i.e., you give the functions the correct paths).
+
+Now we have five data frames, each with their own sets of variables.
+
+The data were scraped from NFL.com. 
+Each table has information on player fantasy stats by week for the 2018 season. 
+For a given player and week, it contains information on the points that NFL.com projected for them, how many points they actually got, and how they got those points (e.g., how many TDs and yards they had).
+
+
+# Inspect Data
+
+There are a few ways to look at your data. 
+First, it's a good idea to look at the first few rows of the data and make sure you know what's in it. 
+We can do that with the `head()` function, which returns the first five rows of a data frame.
+Here, we'll focus on the running backs data:
+```{r}
+head(rbs)
+```
+
+Note that there is a column called `weekpts` which shows how many points a player got in a given week. 
+There's also something called `site_pts` which shows how many points NFL.com projected them to have.
+
+Take some time to look through these rows and make sure you understand all of the variables in it.
+
+Note that for some of the stats (`rec_td` or `rush_td`), when the value should be zero, it is instead reported as missing (in `R`, this is denoted `NA`). 
+This means we need to replace some of those "missing" values in the data with 0:
+```{r}
+rbs <- rbs %>%
+  mutate_if(.predicate = function(field) is.numeric(field) & anyNA(field), 
+            .funs = function(x) ifelse(is.na(x), 0, x))
+```
+
+
+## Summarizing the Data
+
+The `skimr` library, which we loaded above, has a nice function `skim()` gives a nice ordered summary of your data, including univariate summary statistics and histograms:
+```{r}
+rbs %>% skim()
+```
+
+Note that in our syntax above, we used the pipe `%>%` command. 
+This has the effect of saying take the object before the pipe (in this case, the `rbs` data frame) and feed it into the function after the pipe (`skim()`). 
+You could get the same effect as the code above by running `skim(rbs)`.
+
+
+While univariate summaries are important, we're also interested in the relationship between variables. 
+One way to examine that relationship is with the correlation between them. 
+Correlation ranges between -1 and 1. 
+Correlations close to -1 means that two variables are closely related, but that the larger one gets, the smaller the other gets.
+Correlations close to 0 means that the two variables are potentially unrelated.
+Correlations close to 1 means that to variables are closely related, and larger values of one variable are associated with larger values of the other.
+
+We can get a plot of some important pairwise correlations in our data with the following code:
+```{r}
+rbs %>%
+  select(weekpts, site_pts, rush_yds, rush_tds, rec_yds, rec_tds, fumbles_lost, two_pts) %>%
+  cor(.) %>%
+  corrplot()
+```
+
+Not surprisingly, things like the yards and TDs are associated with higher fantasy points.
+
+
+## Other Visualization
+
+Finally, not all relationships are captured by the correlation between variables. 
+Particularly if relationships are not linear, sometimes the correlation between variables can be zero, even if they are closely related.
+
+Thus, we might want to get other visualizations. 
+To do that, we can use the `ggplot` library. 
+This library treats your plot like a canvas.
+You start by saying what data you want to visualize, and then continually add layers to the plot. 
+For example, in the code below, we say we want to visualize the RB data (first line), and that we want to add points that correspond to the projected and actual points:
+```{r}
+ggplot(rbs) + 
+  geom_point(aes(site_pts, weekpts)) # make sure the variable names are inside the aes() function
+```
+
+Suppose we want to add some reference lines to this plot. 
+First, we would think that really good projections should be pretty close to the actual points. 
+Therefore, these points (if the projections are good) should be pretty close to the line `y = x`.
+We can add that line to this plot pretty easily (with `stat_function()` in the code below).
+We might also want to see what a smoothed average function (called a LOESS) that "learns" how to predict actual fantasy points from the projected points looks like. 
+The following code does both:
+```{r}
+ggplot(rbs) + # start canvas with rb data
+  geom_point(aes(site_pts, weekpts)) + # add the points
+  stat_function(fun = function(x) x, color = 'red') + # plot line y = x in red
+  geom_smooth(aes(site_pts, weekpts), method = "loess") # add the smoothed loess curve
+```
+
+We see that the smoothed "learned" LOESS curve looks pretty close to the `y = x` line for much of the data, but seems to be higher than it further out on the $x$-axis.
+Moreover, there is a lot of variation in predictions around the `y = x` line. 
+
+
+# Your Turn
+
+Use the code above to do the following:
+
+1. Create more visualizations for the RBs dataset. 
+2. Repeat for the QB, WR, D/ST, and K datasets.
+
+Try to embed everything in Rmarkdown (i.e., the template document).
+We'll look at how to add code chunks during the meeting. 
+
+If you get lost, a handy reference is the free e-book <a href="https://r4ds.had.co.nz/">R for Data Science</a>

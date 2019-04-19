@@ -1,0 +1,189 @@
+---
+title: "OPOY Predictions"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Libraries
+
+Not all of the functions are available in base `R`. So, we'll have to load some extra functions in order to work with our data.
+```{r}
+library(corrplot)
+library(skimr)
+library(tidyverse) 
+```
+If you cannot load these libraries with this code, then this means you haven't installed those libraries. 
+In `R`, you need to install libraries before you use them. 
+To install a library, you use
+```{r, eval=FALSE}
+install.packages(c("tidverse", "skimr", "corrplot"), dep = TRUE)
+```
+
+
+
+# Load Data
+
+There are data files for each key offensive skill: passing, rushing, and receiving.
+Here, we'll read in each file:
+```{r}
+pass <- readRDS("../data/PFR/pfr_passing_1985_2018.RDS")
+rush <- readRDS("../data/PFR/pfr_rushing_1985_2018.RDS")
+rec <- readRDS("../data/PFR/pfr_receiving_1985_2018.RDS")
+```
+
+We also have a table of OPOY winners:
+```{r}
+opoy_winners <- readRDS("../data/PFR/pfr_awards_opoy_1972-2018.RDS") %>% filter(Year >= 1985)
+```
+
+
+Note that depending on where your `R` script is located, you'll have to change part of the code above so that it corresponds with how you've organized your files (i.e., you give the functions the correct paths).
+
+Now we have four data frames, each with their own sets of variables.
+
+The data were scraped from Pro Football Reference (PFR). 
+Three tables have data on players/seasons regarding their rushing, passing, and receiving stats.
+The fourth table is just a list of winners.
+
+
+# Inspect Data
+
+There are a few ways to look at your data. 
+First, it's a good idea to look at the first few rows of the data and make sure you know what's in it. 
+We can do that with the `head()` function, which returns the first five rows of a data frame.
+Here, we'll focus on the rushing data:
+```{r}
+head(rush)
+```
+
+
+The other table we might be interested in is the `opoy_winners` table that reports who actually won the award:
+```{r}
+head(opoy_winners)
+```
+
+Take some time to look through these rows and make sure you understand all of the variables in it.
+
+
+Note that there are some important things here. 
+We're going to want to join the `opoy_winners` table to the `rush` table in order to indicate which players won in which year.
+Since both have player names, teams, and league years, we could potentially match rows in `rush` to rows in `opoy_winners`. 
+In order to do that, we have to standardize some things. 
+
+First, in the tibble above, we see that some of the names have weird characters appended onto them. 
+For instance, "Gerald Riggs\*": the "\*" is from the web table, and indicates something unrelated to the OPOY problem.
+So, we'll need to clean up the `player` column in the `rush` data:
+```{r}
+rush$player <- gsub("\\+|\\*", "", rush$player) # clean names
+
+# tidy up names for the winners data
+opoy_winners <- opoy_winners %>%
+  select(year = Year, 
+         player = Player, 
+         team = Tm)
+```
+
+
+
+Now that our names and years are standardized, we can write a quick function to return whether a player won OPOY in a given year or not:
+```{r}
+rush <- rush %>% 
+  mutate(opoy = map2(player, year, 
+                     .f = function(x, y){
+                       win = nrow(filter(opoy_winners, 
+                                   player == x, 
+                                   year == y)) == 1
+                       return(as.integer(win))
+                     }), 
+         opoy = unlist(opoy))
+```
+
+Finally, we can see from the position field `pos` that this data contains everyone who ever attempted to run in a game. 
+Further, some of the positions are a little wonky. 
+So, we should filter out folks who only had a few carries (i.e., fewer than 15 or 20). 
+
+```{r}
+rush <- rush %>%
+  filter(att > 20) %>%
+  mutate(pos = toupper(pos)) # get rid of weird capitalizaiton rules
+
+# There are some odd position alignments that we may need to deal with later
+rush %>% distinct(pos)
+```
+
+
+
+
+
+## Summarizing the Data
+
+The `skimr` library, which we loaded above, has a nice function `skim()` gives a nice ordered summary of your data, including univariate summary statistics and histograms:
+```{r}
+rush %>% skim()
+```
+
+Note that in our syntax above, we used the pipe `%>%` command. 
+This has the effect of saying take the object before the pipe (in this case, the `rush` data frame) and feed it into the function after the pipe (`skim()`). 
+You could get the same effect as the code above by running `skim(rush)`.
+
+
+While univariate summaries are important, we're also interested in the relationship between variables. 
+One way to examine that relationship is with the correlation between them. 
+Correlation ranges between -1 and 1. 
+Correlations close to -1 means that two variables are closely related, but that the larger one gets, the smaller the other gets.
+Correlations close to 0 means that the two variables are potentially unrelated.
+Correlations close to 1 means that to variables are closely related, and larger values of one variable are associated with larger values of the other.
+
+We can get a plot of some important pairwise correlations in our data with the following code:
+```{r}
+rush %>%
+  select(year, gs, yds, td, lng, y_a, y_g, fmb, opoy) %>%
+  cor(.) %>%
+  corrplot()
+```
+
+Not surprisingly, things like the yards and TDs are associated with winning OPOY.
+
+
+## Other Visualization
+
+Finally, not all relationships are captured by the correlation between variables. 
+Particularly if relationships are not linear, sometimes the correlation between variables can be zero, even if they are closely related.
+
+Thus, we might want to get other visualizations. 
+To do that, we can use the `ggplot` library. 
+This library treats your plot like a canvas.
+You start by saying what data you want to visualize, and then continually add layers to the plot. 
+For example, in the code below, we say we want to visualize the rushing data (first line), and that we want to add densities that compare the season TDs of OPOY winners and losers:
+```{r}
+ggplot(rush) + 
+  geom_density(aes(td, fill = factor(opoy)), alpha = 0.5) # make sure the variable names are inside the aes() function
+```
+
+We might also be interested in how the relationships between variables differ between OPOY winners and losers. 
+For instance, perhaps yards per game and TDs have a different relationship whether you won or did not win OPOY.
+We can do this with a smoothed average function (called a LOESS) that "learns" how to predict actual TDs from yards per game, and we can group these predictions by whether players won OPOY:
+```{r}
+ggplot(rush) + # start canvas with rb data
+  geom_point(aes(y_g, td, color = factor(opoy)), alpha = 0.6) + # add the points
+  geom_smooth(aes(y_g, td, color = factor(opoy)), method = "loess") # add the smoothed loess curve
+```
+
+We see that the smoothed "learned" LOESS curves follow a similar pattern (i.e., they have the same slope).
+However, OPOY winners tended to have more TDs (higher intercept).
+But, there is a lot of variation in predictions.
+
+# Your Turn
+
+Use the code above to do the following:
+
+1. Create more visualizations for the rushing dataset. 
+2. Repeat for the passing and receiving datasets.
+
+Try to embed everything in Rmarkdown (i.e., the template document).
+We'll look at how to add code chunks during the meeting. 
+
+If you get lost, a handy reference is the free e-book <a href="https://r4ds.had.co.nz/">R for Data Science</a>
