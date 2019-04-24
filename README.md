@@ -1,4 +1,4 @@
-# fwp_football
+# FWP Sports Statistics Club: Football
 
 This is a working repository for the Francis Parker Sabermetrics Club. Our current projects involve scraping NFL stats from different websites and using machine learning to predict:
 
