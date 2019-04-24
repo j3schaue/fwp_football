@@ -27,11 +27,11 @@ library(tidyverse)
 There are data files for each key position in fantasy football: QB, RB, WR, K, and D/ST. 
 Here, we'll read in each file:
 ```{r}
-qbs <- readRDS("../data/fantasy_projections_2018_nfl_QB.Rds")
-rbs <- readRDS("../data/fantasy_projections_2018_nfl_RB.Rds")
-wrs <- readRDS("../data/fantasy_projections_2018_nfl_WR.Rds")
-kick <- readRDS("../data/fantasy_projections_2018_nfl_K.Rds")
-dst <- readRDS("../data/fantasy_projections_2018_nfl_DST.Rds")
+qbs <- readRDS("../data/fantasy/fantasy_projections_2018_nfl_QB.Rds")
+rbs <- readRDS("../data/fantasy/fantasy_projections_2018_nfl_RB.Rds")
+wrs <- readRDS("../data/fantasy/fantasy_projections_2018_nfl_WR.Rds")
+kick <- readRDS("../data/fantasy/fantasy_projections_2018_nfl_K.Rds")
+dst <- readRDS("../data/fantasy/fantasy_projections_2018_nfl_DST.Rds")
 ```
 
 

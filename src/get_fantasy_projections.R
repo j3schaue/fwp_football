@@ -99,9 +99,9 @@ scrape_NFL("RB")
 nfl_fan_proj = tibble(position = c("RB", "QB", "WR", "K", "DST")) %>%
                 mutate(nfl_data = map(position, scrape_NFL))
 
-saveRDS(nfl_fan_proj, "./data/fantasy_projections_2018_nfl_allpos.RDS")
+saveRDS(nfl_fan_proj, "./data/fantasy/fantasy_projections_2018_nfl_allpos.RDS")
 
 for(pos in nfl_fan_proj$position){
   saveRDS(nfl_fan_proj %>% filter(position == pos) %>% select(nfl_data) %>% unnest(), 
-          paste0("./data/fantasy_projections_2018_nfl_", pos, ".Rds"))
+          paste0("./data/fantasy/fantasy_projections_2018_nfl_", pos, ".Rds"))
 }

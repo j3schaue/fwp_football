@@ -254,7 +254,9 @@ h6 {
 </style>
 
 
+</head>
 
+<body>
 
 <style type="text/css">
 .main-container {
@@ -279,92 +281,22 @@ img {
 button.code-folding-btn:focus {
   outline: none;
 }
-summary {
-  display: list-item;
-}
 </style>
 
 
+
+<div class="container-fluid main-container">
 
 <!-- tabsets -->
-
-<style type="text/css">
-.tabset-dropdown > .nav-tabs {
-  display: inline-table;
-  max-height: 500px;
-  min-height: 44px;
-  overflow-y: auto;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
-  font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
-  font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
-}
-
-.tabset-dropdown > .nav-tabs > li.active {
-  display: block;
-}
-
-.tabset-dropdown > .nav-tabs > li > a,
-.tabset-dropdown > .nav-tabs > li > a:focus,
-.tabset-dropdown > .nav-tabs > li > a:hover {
-  border: none;
-  display: inline-block;
-  border-radius: 4px;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
-  display: block;
-  float: none;
-}
-
-.tabset-dropdown > .nav-tabs > li {
-  display: none;
-}
-</style>
-
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
 });
 </script>
 
 <!-- code folding -->
 
 
-
-
-</head>
-
-<body>
-
-
-<div class="container-fluid main-container">
 
 
 
@@ -383,15 +315,20 @@ $(document).ready(function () {
 <p>Not all of the functions are available in base <code>R</code>. So, we’ll have to load some extra functions in order to work with our data.</p>
 <pre class="r"><code>library(corrplot)</code></pre>
 <pre><code>## corrplot 0.84 loaded</code></pre>
-<pre class="r"><code>library(skimr)
-library(tidyverse) </code></pre>
-<pre><code>## ── Attaching packages ──────────────────────────── tidyverse 1.2.1 ──</code></pre>
-<pre><code>## ✔ ggplot2 3.1.0       ✔ purrr   0.3.2  
-## ✔ tibble  2.1.1       ✔ dplyr   0.8.0.1
-## ✔ tidyr   0.8.3       ✔ stringr 1.4.0  
-## ✔ readr   1.3.1       ✔ forcats 0.4.0</code></pre>
-<pre><code>## ── Conflicts ─────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
+<pre class="r"><code>library(skimr)</code></pre>
+<pre><code>## 
+## Attaching package: 'skimr'</code></pre>
+<pre><code>## The following object is masked from 'package:stats':
+## 
+##     filter</code></pre>
+<pre class="r"><code>library(tidyverse) </code></pre>
+<pre><code>## ── Attaching packages ───────────────────────────────────────────────── tidyverse 1.2.1 ──</code></pre>
+<pre><code>## ✔ ggplot2 3.0.0     ✔ purrr   0.2.5
+## ✔ tibble  1.4.2     ✔ dplyr   0.7.6
+## ✔ tidyr   0.8.1     ✔ stringr 1.3.1
+## ✔ readr   1.1.1     ✔ forcats 0.3.0</code></pre>
+<pre><code>## ── Conflicts ──────────────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks skimr::filter(), stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()</code></pre>
 <p>If you cannot load these libraries with this code, then this means you haven’t installed those libraries. In <code>R</code>, you need to install libraries before you use them. To install a library, you use</p>
 <pre class="r"><code>install.packages(c(&quot;tidverse&quot;, &quot;skimr&quot;, &quot;corrplot&quot;), dep = TRUE)</code></pre>
@@ -399,11 +336,11 @@ library(tidyverse) </code></pre>
 <div id="load-data" class="section level1">
 <h1>Load Data</h1>
 <p>There are data files for each key position in fantasy football: QB, RB, WR, K, and D/ST. Here, we’ll read in each file:</p>
-<pre class="r"><code>qbs &lt;- readRDS(&quot;../data/fantasy_projections_2018_nfl_QB.Rds&quot;)
-rbs &lt;- readRDS(&quot;../data/fantasy_projections_2018_nfl_RB.Rds&quot;)
-wrs &lt;- readRDS(&quot;../data/fantasy_projections_2018_nfl_WR.Rds&quot;)
-kick &lt;- readRDS(&quot;../data/fantasy_projections_2018_nfl_K.Rds&quot;)
-dst &lt;- readRDS(&quot;../data/fantasy_projections_2018_nfl_DST.Rds&quot;)</code></pre>
+<pre class="r"><code>qbs &lt;- readRDS(&quot;../data/fantasy/fantasy_projections_2018_nfl_QB.Rds&quot;)
+rbs &lt;- readRDS(&quot;../data/fantasy/fantasy_projections_2018_nfl_RB.Rds&quot;)
+wrs &lt;- readRDS(&quot;../data/fantasy/fantasy_projections_2018_nfl_WR.Rds&quot;)
+kick &lt;- readRDS(&quot;../data/fantasy/fantasy_projections_2018_nfl_K.Rds&quot;)
+dst &lt;- readRDS(&quot;../data/fantasy/fantasy_projections_2018_nfl_DST.Rds&quot;)</code></pre>
 <p>Note that depending on where your <code>R</code> script is located, you’ll have to change part of the code above so that it corresponds with how you’ve organized your files (i.e., you give the functions the correct paths).</p>
 <p>Now we have five data frames, each with their own sets of variables.</p>
 <p>The data were scraped from NFL.com. Each table has information on player fantasy stats by week for the 2018 season. For a given player and week, it contains information on the points that NFL.com projected for them, how many points they actually got, and how they got those points (e.g., how many TDs and yards they had).</p>
@@ -413,15 +350,15 @@ dst &lt;- readRDS(&quot;../data/fantasy_projections_2018_nfl_DST.Rds&quot;)</cod
 <p>There are a few ways to look at your data. First, it’s a good idea to look at the first few rows of the data and make sure you know what’s in it. We can do that with the <code>head()</code> function, which returns the first five rows of a data frame. Here, we’ll focus on the running backs data:</p>
 <pre class="r"><code>head(rbs)</code></pre>
 <pre><code>## # A tibble: 6 x 23
-##   data_src id    src_id esbid gsisplayerid player pos   team  seasonpts
-##   &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;        &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt;
-## 1 NFL      12155 25523… ABD6… 00-0032104   Ameer… RB    MIN         0.9
-## 2 NFL      12154 25525… AJA7… 00-0031590   Jay A… RB    PHI        38.4
-## 3 NFL      12159 25526… ALL4… 00-0031577   Javor… RB    BAL        58.6
-## 4 NFL      11454 25402… AND1… 00-0029854   C.J. … RB    LA         62.4
-## 5 NFL      13326 25588… ARM0… 00-0033296   Alex … RB    CAR        14  
-## 6 NFL      12161 25523… ART3… 00-0031599   Camer… RB    CAR        14.4
-## # … with 14 more variables: site_season_pts &lt;dbl&gt;, weekpts &lt;dbl&gt;,
+##   data_src id    src_id  esbid gsisplayerid player   pos   team  seasonpts
+##   &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;        &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt;
+## 1 NFL      12155 2552374 ABD6… 00-0032104   Ameer A… RB    MIN         0.9
+## 2 NFL      12154 2552582 AJA7… 00-0031590   Jay Aja… RB    PHI        38.4
+## 3 NFL      12159 2552631 ALL4… 00-0031577   Javoriu… RB    BAL        58.6
+## 4 NFL      11454 2540269 AND1… 00-0029854   C.J. An… RB    LA         62.4
+## 5 NFL      13326 2558833 ARM0… 00-0033296   Alex Ar… RB    CAR        14  
+## 6 NFL      12161 2552375 ART3… 00-0031599   Cameron… RB    CAR        14.4
+## # ... with 14 more variables: site_season_pts &lt;dbl&gt;, weekpts &lt;dbl&gt;,
 ## #   site_pts &lt;dbl&gt;, games &lt;dbl&gt;, rush_yds &lt;dbl&gt;, rush_tds &lt;dbl&gt;,
 ## #   rec &lt;dbl&gt;, rec_yds &lt;dbl&gt;, rec_tds &lt;dbl&gt;, ret_tds &lt;dbl&gt;,
 ## #   fumbles_lost &lt;dbl&gt;, two_pts &lt;dbl&gt;, week &lt;int&gt;, season &lt;dbl&gt;</code></pre>
@@ -439,7 +376,7 @@ dst &lt;- readRDS(&quot;../data/fantasy_projections_2018_nfl_DST.Rds&quot;)</cod
 ##  n obs: 1642 
 ##  n variables: 23 
 ## 
-## ── Variable type:character ──────────────────────────────────────────
+## ── Variable type:character ───────────────────────────────────────────────────────────────
 ##      variable missing complete    n min max empty n_unique
 ##      data_src       0     1642 1642   3   3     0        1
 ##         esbid       0     1642 1642   9   9     0      161
@@ -450,11 +387,11 @@ dst &lt;- readRDS(&quot;../data/fantasy_projections_2018_nfl_DST.Rds&quot;)</cod
 ##        src_id       0     1642 1642   3   7     0      161
 ##          team       0     1642 1642   0   3    24       33
 ## 
-## ── Variable type:integer ────────────────────────────────────────────
+## ── Variable type:integer ─────────────────────────────────────────────────────────────────
 ##  variable missing complete    n mean   sd p0 p25 p50 p75 p100     hist
 ##      week       0     1642 1642  8.4 4.76  1   4   8  13   16 ▇▇▇▆▆▆▇▇
 ## 
-## ── Variable type:numeric ────────────────────────────────────────────
+## ── Variable type:numeric ─────────────────────────────────────────────────────────────────
 ##         variable missing complete    n      mean     sd      p0     p25
 ##     fumbles_lost       0     1642 1642    0.034   0.045    0       0   
 ##            games       0     1642 1642    1       0        1       1   

@@ -29,11 +29,11 @@ install.packages(c("tidverse", "skimr", "corrplot"), dep = TRUE)
 There are data files for each key position in fantasy football: QB, RB, WR, K, and D/ST. 
 Here, we'll read in each file:
 ```{r}
-qbs <- readRDS("../data/fantasy_projections_2018_nfl_QB.Rds")
-rbs <- readRDS("../data/fantasy_projections_2018_nfl_RB.Rds")
-wrs <- readRDS("../data/fantasy_projections_2018_nfl_WR.Rds")
-kick <- readRDS("../data/fantasy_projections_2018_nfl_K.Rds")
-dst <- readRDS("../data/fantasy_projections_2018_nfl_DST.Rds")
+qbs <- readRDS("../data/fantasy/fantasy_projections_2018_nfl_QB.Rds")
+rbs <- readRDS("../data/fantasy/fantasy_projections_2018_nfl_RB.Rds")
+wrs <- readRDS("../data/fantasy/fantasy_projections_2018_nfl_WR.Rds")
+kick <- readRDS("../data/fantasy/fantasy_projections_2018_nfl_K.Rds")
+dst <- readRDS("../data/fantasy/fantasy_projections_2018_nfl_DST.Rds")
 ```
 
 Note that depending on where your `R` script is located, you'll have to change part of the code above so that it corresponds with how you've organized your files (i.e., you give the functions the correct paths).
