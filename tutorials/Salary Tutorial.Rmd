@@ -58,7 +58,7 @@ Take some time to look through these rows and make sure you understand all of th
 
 The `skimr` library, which we loaded above, has a nice function `skim()` gives a nice ordered summary of your data, including univariate summary statistics and histograms:
 ```{r}
-of %>% skim()
+of %>% skim() %>% kable()
 ```
 
 Note that in our syntax above, we used the pipe `%>%` command. 
@@ -133,3 +133,20 @@ Try to embed everything in Rmarkdown (i.e., the template document).
 We'll look at how to add code chunks during the meeting. 
 
 If you get lost, a handy reference is the free e-book <a href="https://r4ds.had.co.nz/">R for Data Science</a>
+
+## Example
+
+```{r}
+of %>%
+  filter(skill == 1, 
+         practical_guarantees < 2.5 * 10^7) %>%
+  ggplot() +
+    geom_density(aes(practical_guarantees, fill = pos), alpha = 0.3)
+```
+
+```{r}
+of %>% 
+  filter(age > 0) %>%
+  ggplot() +
+    geom_point(aes(practical_guarantees, age, color = pos))
+```
