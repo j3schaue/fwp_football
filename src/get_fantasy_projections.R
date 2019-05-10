@@ -10,7 +10,9 @@
 
 
 # load the library
-library("ffanalytics")
+library(ffanalytics)
+library(tidyverse)
+library(skimr)
 
 ##---------------------------------------##
 ## Quick demo: get data on proj/pts for
@@ -96,7 +98,7 @@ scrape_NFL <- function(position){
 
 scrape_NFL("RB")
 
-nfl_fan_proj = tibble(position = c("RB", "QB", "WR", "K", "DST")) %>%
+nfl_fan_proj = tibble(position = c("RB", "QB", "WR", "K", "TE", "DST")) %>%
                 mutate(nfl_data = map(position, scrape_NFL))
 
 saveRDS(nfl_fan_proj, "./data/fantasy/fantasy_projections_2018_nfl_allpos.RDS")
