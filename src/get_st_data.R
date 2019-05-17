@@ -14,7 +14,7 @@ source("./src/scrape_st.R")
 
 for(pos in c("offense", "defense", "special")){
   df = scrape_st(pos)
-  saveRDS(df, file = paste0(outdir, pos, ".RDS"))
+  saveRDS(df, file = paste0(outdir, pos, ".Rds"))
 }
 
 
